@@ -35,3 +35,8 @@
  - 생성된 값을 이용하여 1채널 이미지 생성
  - 생성된 이미지를 원본 이미지와 Concate 후 Conv 통과
  - 통과된 이미지는 3채널의 이미지로 BackBone Network의 입력 이미지로 
+
+## 참고
+ - https://github.com/yhenon/pytorch-retinanet
+ - CoordConv paper
+ - RetinaNet paper
