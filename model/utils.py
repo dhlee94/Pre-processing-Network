@@ -1,6 +1,55 @@
 import torch
 import torch.nn as nn
 import numpy as np
+import random
+from easydict import EasyDict
+import yaml
+import os
+
+class AddParserManager:
+    def __init__(self, cfg_file_path, cfg_name, is_json=False):
+        super().__init__()
+        self.values = EasyDict()
+        if cfg_file_path:
+            self.config_file_path = cfg_file_path
+            self.config_name = cfg_name
+            self.reload()
+    def reload(self):
+        self.clear()
+        if self.config_file_path:
+            with open(self.config_file_path, 'r') as f:
+                self.values.update(yaml.safe_load(f)[self.config_name])
+
+    def clear(self):
+        self.values.clear()
+
+    def update(self, in_dict):
+        for (key, value) in in_dict.item():
+            if isinstance(value, dict):
+                for (key2, value2) in value.item():
+                    if isinstance(value2, dict):
+                        for (key3, value3) in value2.item():
+                            self.values[key][key2][key3] = value3
+
+                    else:
+                        self.values[key][key2] = value2
+
+            else:
+                self.values[key] = value
+
+    def export(selfself, save_cfg_path):
+        if save_cfg_path:
+            with open(save_cfg_path, 'w') as f:
+                yaml.dump(dict(self.values), f)
+
+def seed_everything(seed: int = 42):
+    random.seed(seed)
+    np.random.seed(seed)
+    os.environ["PYTHONHASHSEED"] = str(seed)
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed(seed)
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = True
 
 
 def conv3x3(in_planes, out_planes, stride=1):
