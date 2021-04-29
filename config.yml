@@ -1,0 +1,21 @@
+base:
+  seed: 42
+  model_arc : 'resnet18d'
+  num_classes : 131
+  data_path : './training.csv'
+  model_output_dicr : './model/'
+  input_images_size : (3, 100, 100)
+  metric : 'accuracy'
+  write_iter_num : 10
+  test_size : 0.2
+  kfold :
+    use_kfold : True
+    n_splits : 5
+  train_args :
+    num_epochs : 1
+    batch_size : 64
+    optimizer : 'AdamP'
+    lr : 0.001
+    weight_decay : 0.01
+    scheduler : 'CosineAnnealingLR'
+    loss_fn : 'CrossEntropyLoss'
