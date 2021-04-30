@@ -101,7 +101,7 @@ class RegressionModel(nn.Module):
         # out is B x C x W x H, with C = 4*num_anchors
         out = out.permute(0, 2, 3, 1)
 
-        return out.contiguous().view(out.shape[0], -1, 4).cuda()
+        return out.contiguous().view(out.shape[0], -1, 4)
 
 
 class ClassificationModel(nn.Module):
@@ -149,7 +149,7 @@ class ClassificationModel(nn.Module):
 
         out2 = out1.view(batch_size, width, height, self.num_anchors, self.num_classes)
 
-        return out2.contiguous().view(x.shape[0], -1, self.num_classes).cuda()
+        return out2.contiguous().view(x.shape[0], -1, self.num_classes)
 
 
 class ResNet(nn.Module):
@@ -302,9 +302,9 @@ class ResNet(nn.Module):
             finalAnchorBoxesCoordinates = torch.Tensor([])
 
             if torch.cuda.is_available():
-                finalScores = finalScores.cuda()
-                finalAnchorBoxesIndexes = finalAnchorBoxesIndexes.cuda()
-                finalAnchorBoxesCoordinates = finalAnchorBoxesCoordinates.cuda()
+                finalScores = finalScores
+                finalAnchorBoxesIndexes = finalAnchorBoxesIndexes
+                finalAnchorBoxesCoordinates = finalAnchorBoxesCoordinates
 
             for i in range(classification.shape[2]):
                 scores = torch.squeeze(classification[:, :, i])
@@ -325,7 +325,7 @@ class ResNet(nn.Module):
                 finalScores = torch.cat((finalScores, scores[anchors_nms_idx]))
                 finalAnchorBoxesIndexesValue = torch.tensor([i] * anchors_nms_idx.shape[0])
                 if torch.cuda.is_available():
-                    finalAnchorBoxesIndexesValue = finalAnchorBoxesIndexesValue.cuda()
+                    finalAnchorBoxesIndexesValue = finalAnchorBoxesIndexesValue
 
                 finalAnchorBoxesIndexes = torch.cat((finalAnchorBoxesIndexes, finalAnchorBoxesIndexesValue))
                 finalAnchorBoxesCoordinates = torch.cat((finalAnchorBoxesCoordinates, anchorBoxes[anchors_nms_idx]))
