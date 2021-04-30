@@ -5,7 +5,7 @@ import torch
 import torch.optim as optim
 
 from model import retinanet
-from model.dataloader import CocoDataset
+from model.dataloader import CocoDataset, collater, BasedSampler
 from torch.utils.data import DataLoader
 from model import losses
 import albumentations
@@ -49,8 +49,10 @@ dataset_train = CocoDataset(cfg.values.coco_path, set_name='train2017', transfor
 
 dataset_val = CocoDataset(cfg.values.coco_path, set_name='val2017', transforms=val_transform)
 
-dataloader_train = DataLoader(dataset_train, batch_size=batch_size, num_workers=3, shuffle=True, pin_memory=True)
-dataloader_val = DataLoader(dataset_val, batch_size=batch_size, num_workers=3)
+Sampler = BasedSampler(dataset_train, batch_size=batch_size, drop_last=False)
+dataloader_train = DataLoader(dataset_train, num_workers=3, collate_fn=collater, batch_sampler=Sampler)
+Sampler_val = BasedSampler(dataset_val, batch_size=batch_size, drop_last=False)
+dataloader_val = DataLoader(dataset_val, num_workers=3, batch_sampler=Sampler_val)
 
 if network_depth == 18:
     retinanet = retinanet.resnet18(num_classes=num_classes, pretrained=True)
@@ -87,9 +89,13 @@ for epoch_num in range(epoch_start, num_epoch):
     loss = 0
     epoch_loss = []
     for idx, data in enumerate(dataloader_train):
-        classification_output, regression_output = model(data['img'].cuda().float(), data['annots'])
+        imgs = data['img']
+        annots = data['annots']
+        imgs = imgs.float().to(Device)
+        annots = annots.long().to(Device)
+        classification_output, regression_output = model((imgs, annots))
 
-        classification_losss = classification_output.mean()
+        classification_loss = classification_output.mean()
         regression_loss = regression_output.mean()
 
         loss = classification_loss + regression_loss
