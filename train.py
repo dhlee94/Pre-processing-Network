@@ -67,8 +67,7 @@ elif network_depth == 152:
 else:
     raise ValueError('Unsupported model depth, must be one of 18, 34, 50, 101, 152')
 
-model = torch.nn.DataParallel(retinanet).cuda()
-model.to(Device)
+model = torch.nn.DataParallel(retinanet.cuda())
 
 optimizer = optim.Adam(model.parameters(), lr=lr)
 scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, patience=3, verbose=True)
@@ -89,10 +88,11 @@ for epoch_num in range(epoch_start, num_epoch):
     loss = 0
     epoch_loss = []
     for idx, data in enumerate(dataloader_train):
-        imgs = data['img']
-        annots = data['annots']
-        imgs = imgs.float().to(Device)
-        annots = annots.long().to(Device)
+        with torch.cuda.device(0):
+            imgs = data['img']
+            annots = data['annots']
+            imgs = imgs.float().cuda()
+            annots = annots.long().cuda()
         classification_output, regression_output = model((imgs, annots))
 
         classification_loss = classification_output.mean()
