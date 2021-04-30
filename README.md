@@ -36,6 +36,11 @@
  - 생성된 이미지를 원본 이미지와 Concate 후 Conv 통과
  - 통과된 이미지는 3채널의 이미지로 BackBone Network의 입력 이미지로 
 
+##Bbox argumentation
+ - 만약 오류 : check_bbox "to be in the range [0.0, 1.0], got {value} ..." 가 나올 시
+ - /usr/local/lib/python/dist-packages/albumentations/augmentations/bbox_utils.py 수정
+ - 코드 : bbox range가 0, 1 범위에 존재하며, 범위를 벗어나는지 확인 후 수정
+
 ## 참고
  - https://github.com/yhenon/pytorch-retinanet
  - CoordConv paper
